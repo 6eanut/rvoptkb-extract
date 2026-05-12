@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "ideas": [
+    {
+      "id": "idea-0001",
+      "title": "RVV LMUL Dynamic Tuning in GEMM Kernels",
+      "riscv_extensions": [
+        "V"
+      ]
+    },
+    {
+      "id": "idea-0002",
+      "title": "RVV Primitive Operator Implementation",
+      "riscv_extensions": [
+        "V",
+        "Zvfh"
+      ]
+    },
+    {
+      "id": "idea-0003",
+      "title": "RVV JIT Kernel Integration via xbyak_riscv",
+      "riscv_extensions": [
+        "V",
+        "Zvfh"
+      ]
+    },
+    {
+      "id": "idea-0004",
+      "title": "GEMM/Matmul Performance Optimization",
+      "riscv_extensions": [
+        "V"
+      ]
+    },
+    {
+      "id": "idea-0005",
+      "title": "FP16/Zvfh Extension Support",
+      "riscv_extensions": [
+        "V",
+        "Zvfh"
+      ]
+    },
+    {
+      "id": "idea-0006",
+      "title": "Build & Compiler Infrastructure for RV64",
+      "riscv_extensions": [
+        "V",
+        "Zvfh"
+      ]
+    },
+    {
+      "id": "idea-0007",
+      "title": "RVV Post-ops and Element-wise Fusion",
+      "riscv_extensions": [
+        "V"
+      ]
+    },
+    {
+      "id": "idea-0008",
+      "title": "Code Quality and Maintenance for RV64 Port",
+      "riscv_extensions": [
+        "V",
+        "Zvfh"
+      ]
+    },
+    {
+      "id": "idea-0009",
+      "title": "Governance, CI and Testing for RV64",
+      "riscv_extensions": [
+        "V",
+        "Zvfh"
+      ]
+    },
+    {
+      "id": "idea-0010",
+      "title": "Multi-threading and Parallelism in RVV Kernels",
+      "riscv_extensions": [
+        "V"
+      ]
+    }
+  ]
+}

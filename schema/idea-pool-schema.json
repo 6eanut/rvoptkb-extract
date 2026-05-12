@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RISC-V Optimization Knowledge Base — Idea Pool",
+  "description": "Persistent pool of Ideas (design principles). Grows organically as patches are processed.",
+  "type": "object",
+  "required": ["version", "ideas"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version for future migrations",
+      "enum": ["1.0"]
+    },
+    "ideas": {
+      "type": "array",
+      "description": "List of idea categories (data-driven, grows as patches are processed)",
+      "items": {"$ref": "#/definitions/Idea"}
+    }
+  },
+  "definitions": {
+    "Idea": {
+      "type": "object",
+      "required": ["id", "title", "riscv_extensions"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^idea-[0-9]{4}$",
+          "description": "Auto-incremented unique ID (idea-NNNN format)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Concise title of the idea / general design principle (the title itself IS the description)"
+        },
+        "riscv_extensions": {
+          "type": "array",
+          "description": "RISC-V ISA extensions this idea relates to",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  }
+}

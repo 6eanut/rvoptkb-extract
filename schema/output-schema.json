@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "rvoptkb-extract Output",
+  "description": "Lightweight output JSON produced by the rvoptkb-extract skill. Contains patch info plus concise thought text and idea category as quick-reference pointers. Full structured data lives in the idea pool (pool/idea-pool.json).",
+  "type": "object",
+  "required": ["patch", "thought", "idea"],
+  "properties": {
+    "patch": {
+      "type": "object",
+      "description": "Original patch information (mirrored from input for standalone reference)",
+      "required": ["patch_subject", "commit_message", "code_diff"],
+      "properties": {
+        "patch_subject": {"type": "string", "description": "First line of the commit message"},
+        "commit_message": {"type": "string", "description": "Full commit message"},
+        "code_diff": {"type": "string", "description": "Code diff content"}
+      }
+    },
+    "thought": {
+      "type": "string",
+      "description": "Extracted optimization technique as a single actionable sentence (EoK Layer 2)",
+      "examples": ["Use LMUL dynamic tuning (m1→m8/m4/m2) to maximize vector register utilization in GEMM kernels on RISC-V V extension hardware"]
+    },
+    "idea": {
+      "type": "string",
+      "description": "Idea title for quick classification (EoK Layer 1). Full structured idea data lives in the pool.",
+      "examples": ["RVV LMUL Dynamic Tuning in GEMM Kernels", "RVV Primitive Operator Implementation"]
+    }
+  }
+}

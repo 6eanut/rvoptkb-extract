@@ -1,0 +1,9 @@
+{
+  "patch": {
+    "patch_subject": "cpu: rv64: gemm: improve gemm kernel performance by tuning LMUL",
+    "commit_message": "cpu: rv64: gemm: improve gemm kernel performance by tuning LMUL",
+    "code_diff": "diff --git a/src/cpu/rv64/gemm/rvv_gemm_f32.cpp\n@@ -40,19 +40,21 @@ ..."
+  },
+  "thought": "Use LMUL dynamic tuning (m1→m8/m4/m2) to maximize vector register utilization in GEMM kernels on RISC-V V extension hardware, adjusting the vector length multiplier based on the number of output columns to balance register pressure and data parallelism",
+  "idea": "V Extension Optimization"
+}
