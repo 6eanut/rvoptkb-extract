@@ -186,9 +186,9 @@ Examples:
 
 **Decision logic:**
 
-- If **no ideas exist** in the pool → Go to **Step 4a** (Create New Idea)
+- If **no ideas exist** in the pool → Go to **Step 5** (Create New Idea)
 - If a **semantic match is found** (the thought clearly belongs to an existing idea) → reuse the matched idea's title (no pool changes needed)
-- If **no match** (the thought describes a fundamentally different optimization direction) → Go to **Step 4a** (Create New Idea)
+- If **no match** (the thought describes a fundamentally different optimization direction) → Go to **Step 5** (Create New Idea)
 
 **Important:** Be conservative about matching. It's better to create a slightly overlapping new idea than to force a poor match into an existing one.
 
