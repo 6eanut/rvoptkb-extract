@@ -17,8 +17,10 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
+from http.client import IncompleteRead
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
@@ -105,10 +107,11 @@ def fetch_page_via_gh(owner: str, repo: str, page: int, since: str | None) -> li
         return None
 
 
-def fetch_page_via_urllib(owner: str, repo: str, page: int, since: str | None) -> list[dict]:
+def fetch_page_via_urllib(owner: str, repo: str, page: int, since: str | None, retries: int = 3) -> list[dict] | None:
     """Fallback: fetch one page of commits using unauthenticated urllib.
 
-    Returns list of commit dicts. Raises RuntimeError on HTTP/network errors.
+    Retries up to `retries` times on network errors (IncompleteRead).
+    Returns list of commit dicts, or None on failure to allow graceful skipping.
     """
     url = (f"https://api.github.com/repos/{owner}/{repo}/commits"
            f"?per_page={PER_PAGE}&page={page}")
@@ -121,24 +124,39 @@ def fetch_page_via_urllib(owner: str, repo: str, page: int, since: str | None) -
             "User-Agent": USER_AGENT,
         }
     )
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        if e.code == 403:
-            reset_time = e.headers.get("X-RateLimit-Reset", "unknown")
-            raise RuntimeError(
-                f"GitHub API rate limited. Reset time (epoch): {reset_time}.\n"
-                f"Run `gh auth login` for authenticated access."
+
+    for attempt in range(1, retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read())
+            break  # Success
+        except IncompleteRead as e:
+            if attempt < retries:
+                time.sleep(1 * attempt)  # Linear backoff
+                continue
+            print(
+                f"  ⚠ Warning: IncompleteRead on page {page} after {retries} retries "
+                f"({len(e.partial)} bytes read). Skipping page.",
+                file=sys.stderr,
             )
-        elif e.code == 404:
-            raise RuntimeError(
-                f"Repository not found: {owner}/{repo}\n"
-                f"Verify the URL is correct and the repository is public."
+            return None
+        except urllib.error.HTTPError as e:
+            print(
+                f"  ⚠ Warning: HTTP {e.code} on page {page}: {e.reason}. Skipping page.",
+                file=sys.stderr,
             )
-        raise RuntimeError(f"HTTP {e.code}: {e.reason}")
-    except urllib.error.URLError as e:
-        raise RuntimeError(f"Network error: {e.reason}")
+            if e.code == 403:
+                print(
+                    "    (You may be rate limited. Run `gh auth login` for authenticated access.)",
+                    file=sys.stderr,
+                )
+            return None
+        except urllib.error.URLError as e:
+            print(
+                f"  ⚠ Warning: Network error on page {page}: {e.reason}. Skipping page.",
+                file=sys.stderr,
+            )
+            return None
 
     if not isinstance(data, list):
         api_msg = data.get("message", "unknown error") if isinstance(data, dict) else "unexpected response"
@@ -179,6 +197,8 @@ def scan_repo(owner: str, repo: str, max_pages: int, since: str | None, verbose:
     """
     matched_urls: list[str] = []
     total_scanned = 0
+    skipped_pages = 0
+    max_skip = 5  # Give up after this many consecutive page failures
     page = 1
 
     while True:
@@ -186,6 +206,21 @@ def scan_repo(owner: str, repo: str, max_pages: int, since: str | None, verbose:
             print(f"  Page {page}...", file=sys.stderr)
 
         commits = fetch_page(owner, repo, page, since)
+
+        # If page fetch failed entirely, skip it and try next page
+        if commits is None:
+            skipped_pages += 1
+            if verbose:
+                print(f"    ⚠ Skipping page {page} (fetch failed)", file=sys.stderr)
+            page += 1
+            # If we've skipped too many consecutive pages, give up
+            if skipped_pages >= max_skip:
+                if verbose:
+                    print(f"    ✗ Too many consecutive failures, stopping", file=sys.stderr)
+                break
+            continue
+
+        skipped_pages = 0  # Reset on success
         total_scanned += len(commits)
 
         for c in commits:
@@ -207,6 +242,7 @@ def scan_repo(owner: str, repo: str, max_pages: int, since: str | None, verbose:
     if verbose:
         print(f"  ─────────────────────────────────", file=sys.stderr)
         print(f"  Scanned: {total_scanned} commits across {page} page(s)", file=sys.stderr)
+        print(f"  Skipped: {skipped_pages} page(s) due to fetch errors", file=sys.stderr)
         print(f"  Matches: {len(matched_urls)}", file=sys.stderr)
 
     return matched_urls
