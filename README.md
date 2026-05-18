@@ -106,6 +106,8 @@ python3 scripts/check-idea-pool.py --search "gemm"
 
 ## 二、工作流详解
 
+<img width="1536" height="1024" alt="9c5dabe500a8dd7402402052b63f1c3" src="https://github.com/user-attachments/assets/30f8cb5e-5916-4268-af33-1777478b9c3d" />
+
 ### 2.1 系统架构全景
 
 ```
